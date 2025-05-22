@@ -23,3 +23,8 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+
+#Дает сам Payme логин и пароль
+paycom:
+  login: login
+  password: password
