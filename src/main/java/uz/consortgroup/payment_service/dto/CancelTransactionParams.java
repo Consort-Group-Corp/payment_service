@@ -1,18 +1,18 @@
 package uz.consortgroup.payment_service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class PaycomRequestDto {
-    private Object id;
-    private String method;
-    private Map<String, Object> params;
+public class CancelTransactionParams {
+    private String id;
+    private Integer reason;
+    @JsonProperty("account")
+    private AccountDto accountDto;
 }

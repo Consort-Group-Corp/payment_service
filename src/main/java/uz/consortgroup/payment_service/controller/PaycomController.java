@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uz.consortgroup.payment_service.dto.PaycomRequestDto;
+import uz.consortgroup.payment_service.dto.PaycomRequest;
 import uz.consortgroup.payment_service.dto.PaycomResponse;
 import uz.consortgroup.payment_service.service.PaycomService;
 
@@ -20,8 +20,9 @@ public class PaycomController {
     private final PaycomService paycomService;
 
     @PostMapping
-    public ResponseEntity<PaycomResponse> handleRequest(@RequestBody @Valid PaycomRequestDto request) {
+    public ResponseEntity<PaycomResponse> handleRequest(@RequestBody @Valid PaycomRequest request) {
         PaycomResponse response = paycomService.handle(request);
         return ResponseEntity.ok(response);
     }
+
 }

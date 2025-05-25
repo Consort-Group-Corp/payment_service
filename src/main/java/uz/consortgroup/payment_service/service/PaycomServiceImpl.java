@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
-import uz.consortgroup.payment_service.dto.PaycomRequestDto;
+import uz.consortgroup.payment_service.dto.PaycomRequest;
 import uz.consortgroup.payment_service.dto.PaycomResponse;
 import uz.consortgroup.payment_service.service.handler.PaycomMethodHandler;
 
@@ -25,13 +25,15 @@ public class PaycomServiceImpl implements PaycomService {
     @PostConstruct
     public void initHandlers() {
         Map<String, PaycomMethodHandler> beans = applicationContext.getBeansOfType(PaycomMethodHandler.class);
-        handlerMap.putAll(beans);
+        for (PaycomMethodHandler handler : beans.values()) {
+            handlerMap.put(handler.getMethod(), handler);
+        }
     }
 
 
     @Override
     @AllAspect
-    public PaycomResponse handle(PaycomRequestDto request) {
+    public PaycomResponse handle(PaycomRequest request) {
         String method = request.getMethod();
         PaycomMethodHandler handler = handlerMap.get(method);
 
