@@ -59,5 +59,4 @@ public class GetStatementHandler implements PaycomMethodHandler {
 
         return PaycomResponse.success(id, result);
     }
-
 }

@@ -1,7 +1,6 @@
 package uz.consortgroup.payment_service.service.handler.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
@@ -18,14 +17,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import static uz.consortgroup.payment_service.service.util.JsonUtil.convertParams;
-import static uz.consortgroup.payment_service.service.util.PaycomErrorFactory.internalError;
 
 @Service
 @RequiredArgsConstructor
 public class CreateTransactionHandler implements PaycomMethodHandler {
 
     private final TransactionRepository transactionRepository;
-
 
     @Override
     public String getMethod() {

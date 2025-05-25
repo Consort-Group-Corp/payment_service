@@ -98,16 +98,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(TransactionNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleTransactionNotFoundException(TransactionNotFoundException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                "Transaction Not Found",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(UnableToCancelException.class)
     public ResponseEntity<ErrorResponse> handleUnableToCancelException(UnableToCancelException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
