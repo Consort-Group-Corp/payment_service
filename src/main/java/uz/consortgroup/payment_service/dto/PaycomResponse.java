@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uz.consortgroup.payment_service.exception.PaycomException;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,6 +28,17 @@ public class PaycomResponse {
         return PaycomResponse.builder()
                 .id(id)
                 .error(error)
+                .build();
+    }
+
+    public static PaycomResponse error(Object id, PaycomException ex) {
+        return PaycomResponse.builder()
+                .id(id)
+                .error(PaycomError.builder()
+                        .code(ex.getCode())
+                        .message(ex.getMessages())
+                        .data(ex.getData())
+                        .build())
                 .build();
     }
 }

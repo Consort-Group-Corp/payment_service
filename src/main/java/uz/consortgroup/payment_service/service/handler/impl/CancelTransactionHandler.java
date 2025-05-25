@@ -11,6 +11,7 @@ import uz.consortgroup.payment_service.dto.PaycomResponse;
 import uz.consortgroup.payment_service.entity.Transaction;
 import uz.consortgroup.payment_service.entity.TransactionState;
 import uz.consortgroup.payment_service.exception.OrderNotFoundException;
+import uz.consortgroup.payment_service.exception.PaycomException;
 import uz.consortgroup.payment_service.exception.UnableToCancelException;
 import uz.consortgroup.payment_service.repository.TransactionRepository;
 import uz.consortgroup.payment_service.service.handler.PaycomMethodHandler;
@@ -70,9 +71,11 @@ public class CancelTransactionHandler implements PaycomMethodHandler {
                     "cancel_time", transaction.getCancelTime().toEpochMilli(),
                     "state", transaction.getState().getCode()
             ));
-        }  catch (Exception e) {
+
+        } catch (PaycomException e) {
+            return PaycomResponse.error(id, e);
+        } catch (Exception e) {
             return PaycomResponse.error(id, internalError());
         }
     }
-
 }
