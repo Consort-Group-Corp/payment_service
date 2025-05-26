@@ -28,3 +28,6 @@ spring:
 paycom:
   login: login
   password: password
+
+click:
+  secret-key: secret-key

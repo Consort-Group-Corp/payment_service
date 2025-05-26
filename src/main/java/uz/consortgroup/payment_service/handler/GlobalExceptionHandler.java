@@ -4,14 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import uz.consortgroup.payment_service.exception.MethodNotFoundException;
-import uz.consortgroup.payment_service.exception.OrderNotFoundException;
-import uz.consortgroup.payment_service.exception.PaycomException;
-import uz.consortgroup.payment_service.exception.TransactionAlreadyPerformedException;
-import uz.consortgroup.payment_service.exception.TransactionCancelledException;
-import uz.consortgroup.payment_service.exception.TransactionInvalidStateException;
-import uz.consortgroup.payment_service.exception.TransactionNotFoundException;
-import uz.consortgroup.payment_service.exception.UnableToCancelException;
+import uz.consortgroup.payment_service.exception.paycom.MethodNotFoundException;
+import uz.consortgroup.payment_service.exception.paycom.OrderNotFoundException;
+import uz.consortgroup.payment_service.exception.paycom.PaycomException;
+import uz.consortgroup.payment_service.exception.paycom.TransactionAlreadyPerformedException;
+import uz.consortgroup.payment_service.exception.paycom.TransactionCancelledException;
+import uz.consortgroup.payment_service.exception.paycom.TransactionInvalidStateException;
+import uz.consortgroup.payment_service.exception.paycom.TransactionNotFoundException;
+import uz.consortgroup.payment_service.exception.paycom.UnableToCancelException;
 
 import java.text.ParseException;
 
