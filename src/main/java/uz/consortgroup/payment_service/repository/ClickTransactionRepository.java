@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface ClickTransactionRepository extends JpaRepository<ClickTransaction, UUID> {
     Optional<ClickTransaction> findByClickTransactionId(Long clickTransactionId);
+    boolean existsByClickTransactionId(Long clickTransactionId);
 }

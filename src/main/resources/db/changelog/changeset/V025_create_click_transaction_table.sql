@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS payment_schema.click_transactions (
     click_transaction_id BIGINT NOT NULL UNIQUE,
     service_id BIGINT NOT NULL,
     merchant_transaction_id VARCHAR(100) NOT NULL,
-    merchant_prepare_id UUID,
+    merchant_prepare_id VARCHAR(100),
     amount BIGINT NOT NULL,
     action SMALLINT NOT NULL,
     sign_time TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS payment_schema.click_transactions (
     perform_time TIMESTAMP WITH TIME ZONE,
     cancel_time TIMESTAMP WITH TIME ZONE,
     cancel_reason TEXT,
-    created_at TIMESTAMP WITH TIME ZONE,
-    updated_at TIMESTAMP WITH TIME ZONE
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

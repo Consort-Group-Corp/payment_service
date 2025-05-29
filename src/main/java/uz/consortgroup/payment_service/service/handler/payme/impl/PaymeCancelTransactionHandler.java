@@ -15,7 +15,7 @@ import uz.consortgroup.payment_service.exception.paycom.PaycomException;
 import uz.consortgroup.payment_service.exception.paycom.UnableToCancelException;
 import uz.consortgroup.payment_service.repository.PaymeTransactionRepository;
 import uz.consortgroup.payment_service.service.handler.payme.PaycomMethodHandler;
-import uz.consortgroup.payment_service.validator.OrderValidatorService;
+import uz.consortgroup.payment_service.validator.PaymeTransactionValidatorService;
 
 import java.time.Instant;
 import java.util.Map;
@@ -29,7 +29,7 @@ import static uz.consortgroup.payment_service.service.util.PaycomErrorFactory.in
 public class PaymeCancelTransactionHandler implements PaycomMethodHandler {
 
     private final PaymeTransactionRepository paymeTransactionRepository;
-    private final OrderValidatorService orderValidatorService;
+    private final PaymeTransactionValidatorService paymeTransactionValidatorService;
 
     @Override
     public String getMethod() {
@@ -62,7 +62,7 @@ public class PaymeCancelTransactionHandler implements PaycomMethodHandler {
                 throw new UnableToCancelException();
             }
 
-            orderValidatorService.validateTransactionCancelable(paymeTransaction);
+            paymeTransactionValidatorService.validateTransactionCancelable(paymeTransaction);
 
             paymeTransaction.setState(PaymeTransactionState.CANCELED);
             paymeTransaction.setCancelTime(Instant.now());

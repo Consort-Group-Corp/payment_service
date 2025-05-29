@@ -12,7 +12,7 @@ import uz.consortgroup.payment_service.entity.PaymeTransactionState;
 import uz.consortgroup.payment_service.exception.paycom.TransactionNotFoundException;
 import uz.consortgroup.payment_service.repository.PaymeTransactionRepository;
 import uz.consortgroup.payment_service.service.handler.payme.PaycomMethodHandler;
-import uz.consortgroup.payment_service.validator.OrderValidatorService;
+import uz.consortgroup.payment_service.validator.PaymeTransactionValidatorService;
 
 import java.time.Instant;
 import java.util.Map;
@@ -23,7 +23,7 @@ import static uz.consortgroup.payment_service.service.util.JsonUtil.convertParam
 @RequiredArgsConstructor
 public class PaymePerformTransactionHandler implements PaycomMethodHandler {
     private final PaymeTransactionRepository paymeTransactionRepository;
-    private final OrderValidatorService orderValidatorService;
+    private final PaymeTransactionValidatorService paymeTransactionValidatorService;
 
     @Override
     public String getMethod() {
@@ -45,7 +45,7 @@ public class PaymePerformTransactionHandler implements PaycomMethodHandler {
             return PaycomResponse.success(id, buildResponse(tx));
         }
 
-        orderValidatorService.validateTransactionState(tx, PaymeTransactionState.CREATED);
+        paymeTransactionValidatorService.validateTransactionState(tx, PaymeTransactionState.CREATED);
 
         tx.setState(PaymeTransactionState.COMPLETED);
         tx.setPerformTime(Instant.now());

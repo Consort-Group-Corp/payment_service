@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -27,7 +25,7 @@ public class ClickRequest {
     private String merchantTransactionId;
 
     @JsonProperty("merchant_prepare_id")
-    private UUID merchantPrepareId;
+    private String merchantPrepareId;
 
     @NotNull(message = "Amount is required")
     @JsonProperty("amount")

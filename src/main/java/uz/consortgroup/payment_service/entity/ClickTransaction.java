@@ -40,7 +40,7 @@ public class ClickTransaction {
     private String merchantTransactionId;
 
     @Column(name = "merchant_prepare_id")
-    private UUID merchantPrepareId;
+    private String merchantPrepareId;
 
     @Column(name = "amount", nullable = false)
     private Long amount;
@@ -67,10 +67,10 @@ public class ClickTransaction {
     @Column(name = "cancel_reason")
     private String cancelReason;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist
