@@ -1,6 +1,6 @@
 package uz.consortgroup.payment_service.service.util;
 
-import uz.consortgroup.payment_service.dto.PaycomError;
+import uz.consortgroup.payment_service.dto.paycom.PaycomError;
 
 import java.util.Map;
 

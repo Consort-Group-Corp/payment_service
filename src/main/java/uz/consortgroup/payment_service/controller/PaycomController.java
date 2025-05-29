@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uz.consortgroup.payment_service.dto.PaycomRequest;
-import uz.consortgroup.payment_service.dto.PaycomResponse;
-import uz.consortgroup.payment_service.service.PaycomService;
+import uz.consortgroup.payment_service.dto.paycom.PaycomRequest;
+import uz.consortgroup.payment_service.dto.paycom.PaycomResponse;
+import uz.consortgroup.payment_service.service.handler.payme.PaycomService;
 
 @RequiredArgsConstructor
 @RestController
@@ -24,5 +24,4 @@ public class PaycomController {
         PaycomResponse response = paycomService.handle(request);
         return ResponseEntity.ok(response);
     }
-
 }

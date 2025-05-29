@@ -1,3 +1,9 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/V023_create_payment_schema.sql
+  - include:
+      file: db/changelog/changeset/V024_create_orders_table.sql
+  - include:
+      file: db/changelog/changeset/V025_create_click_transaction_table.sql
+  - include:
+      file: db/changelog/changeset/V026_create_payme_transaction_table.sql

@@ -28,3 +28,7 @@ spring:
 paycom:
   login: login
   password: password
+
+#Дает сам Click token
+click:
+  secret-key: test-secret-key-20250527
