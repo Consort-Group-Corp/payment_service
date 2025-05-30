@@ -26,7 +26,7 @@ public class PaycomAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !pathMatcher.match("/api/paycom/**", request.getRequestURI());
+        return !pathMatcher.match("/api/v1/paycom/**", request.getRequestURI());
     }
 
     @Override

@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/paycom/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/paycom/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/click/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/orders").permitAll()
                         .anyRequest().permitAll()
