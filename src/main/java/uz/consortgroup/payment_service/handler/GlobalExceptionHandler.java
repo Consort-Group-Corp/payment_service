@@ -4,6 +4,8 @@ import jakarta.el.MethodNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import uz.consortgroup.payment_service.exception.AmountMismatchException;
@@ -13,9 +15,9 @@ import uz.consortgroup.payment_service.exception.OrderNotFoundException;
 import uz.consortgroup.payment_service.exception.TransactionAlreadyCanceledException;
 import uz.consortgroup.payment_service.exception.TransactionNotFoundException;
 import uz.consortgroup.payment_service.exception.UnableToCancelException;
-import uz.consortgroup.payment_service.exception.paycom.PaycomException;
 
 import java.text.ParseException;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
@@ -75,16 +77,6 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnableToCancelException.class)
-    public ResponseEntity<ErrorResponse> handleUnableToCancelException(UnableToCancelException e) {
-        log.error("UnableToCancelException: {}", e.getMessage(), e);
-        return new ResponseEntity<>(
-                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "unable_to_cancel", e.getMessage()),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-
-    @ExceptionHandler(UnableToCancelException.class)
     public ResponseEntity<ErrorResponse> handlePaycomUnableToCancelException(UnableToCancelException e) {
         log.error("Paycom UnableToCancelException: {}", e.getMessage(), e);
         return new ResponseEntity<>(
@@ -92,16 +84,6 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
     }
-
-    @ExceptionHandler(TransactionNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePaycomTransactionNotFoundException(TransactionNotFoundException e) {
-        log.error("Paycom TransactionNotFoundException: {}", e.getMessage(), e);
-        return new ResponseEntity<>(
-                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "paycom_transaction_not_found", e.getMessage()),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
 
     @ExceptionHandler(MethodNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotFoundException(MethodNotFoundException e) {
@@ -111,16 +93,6 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
     }
-
-    @ExceptionHandler(PaycomException.class)
-    public ResponseEntity<ErrorResponse> handlePaycomException(PaycomException e) {
-        log.error("PaycomException: {}", e.getMessage(), e);
-        return new ResponseEntity<>(
-                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "paycom_error", e.getMessage()),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
 
     @ExceptionHandler(ParseException.class)
     public ResponseEntity<ErrorResponse> handleParseException(ParseException e) {
@@ -146,6 +118,29 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "internal_server_error", "Произошла непредвиденная ошибка"),
                 HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(HttpMessageNotReadableException ex) {
+        log.error("HttpMessageNotReadableException: {}", ex.getMessage(), ex);
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "bad_request", "Неправильный запрос"),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "validation_error", errorMessage),
+                HttpStatus.BAD_REQUEST
         );
     }
 }

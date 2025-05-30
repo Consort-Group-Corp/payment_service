@@ -1,5 +1,6 @@
 package uz.consortgroup.payment_service.dto.order;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -23,6 +24,7 @@ public class OrderRequest {
 
     @NotNull(message = "amount is required")
     @Positive(message = "amount must be positive")
+    @Min(value = 500, message = "amount must be at least 500")
     private Long amount;
 
     @NotNull(message = "source is required")
