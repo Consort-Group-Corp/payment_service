@@ -8,11 +8,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderItemType;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderRequest;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderResponse;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderStatus;
 import uz.consortgroup.payment_service.config.SecurityConfig;
-import uz.consortgroup.payment_service.dto.order.OrderRequest;
-import uz.consortgroup.payment_service.dto.order.OrderResponse;
-import uz.consortgroup.payment_service.entity.OrderSource;
-import uz.consortgroup.payment_service.entity.OrderStatus;
 import uz.consortgroup.payment_service.service.order.OrderService;
 
 import java.time.Instant;
@@ -39,6 +40,8 @@ class OrderControllerTest {
     void create_success() throws Exception {
         OrderRequest request = OrderRequest.builder()
                 .externalOrderId("123")
+                .userId(UUID.randomUUID())
+                .itemType(OrderItemType.COURSE)
                 .amount(15000L)
                 .source(OrderSource.CLICK)
                 .build();
@@ -46,7 +49,9 @@ class OrderControllerTest {
         OrderResponse response = OrderResponse.builder()
                 .id(UUID.randomUUID())
                 .externalOrderId("123")
+                .userId(UUID.randomUUID())
                 .amount(15000L)
+                .itemType(OrderItemType.COURSE)
                 .source(OrderSource.CLICK)
                 .status(OrderStatus.NEW)
                 .createdAt(Instant.now())
@@ -66,7 +71,7 @@ class OrderControllerTest {
         OrderRequest request = OrderRequest.builder()
                 .externalOrderId("") // blank
                 .amount(15000L)
-                .source(uz.consortgroup.payment_service.entity.OrderSource.CLICK)
+                .source(OrderSource.CLICK)
                 .build();
 
         mockMvc.perform(post("/api/v1/orders")
@@ -80,7 +85,7 @@ class OrderControllerTest {
         OrderRequest request = OrderRequest.builder()
                 .externalOrderId("abc123")
                 .amount(10L)
-                .source(uz.consortgroup.payment_service.entity.OrderSource.CLICK)
+                .source(OrderSource.CLICK)
                 .build();
 
         mockMvc.perform(post("/api/v1/orders")

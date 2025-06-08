@@ -6,16 +6,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import uz.consortgroup.payment_service.dto.order.OrderRequest;
-import uz.consortgroup.payment_service.dto.order.OrderResponse;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderRequest;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderResponse;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderStatus;
 import uz.consortgroup.payment_service.entity.Order;
-import uz.consortgroup.payment_service.entity.OrderSource;
-import uz.consortgroup.payment_service.entity.OrderStatus;
 import uz.consortgroup.payment_service.exception.OrderAlreadyExistsException;
 import uz.consortgroup.payment_service.mapper.OrderMapper;
 import uz.consortgroup.payment_service.repository.OrderRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,6 +46,7 @@ class OrderServiceImplTest {
     void create_shouldSaveAndReturnOrder_whenOrderDoesNotExist() {
         OrderRequest request = new OrderRequest();
         request.setExternalOrderId("ext123");
+        request.setUserId(UUID.randomUUID());
         request.setAmount(5000L);
         request.setSource(OrderSource.CLICK);
 

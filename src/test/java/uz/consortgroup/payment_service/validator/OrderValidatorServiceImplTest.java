@@ -2,9 +2,9 @@ package uz.consortgroup.payment_service.validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderStatus;
 import uz.consortgroup.payment_service.entity.Order;
-import uz.consortgroup.payment_service.entity.OrderSource;
-import uz.consortgroup.payment_service.entity.OrderStatus;
 import uz.consortgroup.payment_service.exception.AmountMismatchException;
 import uz.consortgroup.payment_service.exception.OrderInvalidStatusException;
 import uz.consortgroup.payment_service.exception.OrderNotFoundException;
@@ -74,7 +74,7 @@ class OrderValidatorServiceImplTest {
     @Test
     void validateOrderStatus_shouldNotThrow_whenStatusIsPayable() {
         Order order = new Order();
-        order.setStatus(OrderStatus.NEW); // assuming NEW is payable
+        order.setStatus(OrderStatus.NEW);
 
         assertDoesNotThrow(() -> validator.validateOrderStatus(order));
     }
