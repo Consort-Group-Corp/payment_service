@@ -33,7 +33,12 @@ dependencies {
     // core-api-dto
     implementation("uz.consortgroup:core-api-dto:0.0.1")
 
+    //Lombok
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
     // MapStruct
+    compileOnly("org.mapstruct:mapstruct-processor:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
 
@@ -47,9 +52,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
-    //Lombok
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
 
     // Apache Kafka
     implementation("org.springframework.kafka:spring-kafka:3.2.0")

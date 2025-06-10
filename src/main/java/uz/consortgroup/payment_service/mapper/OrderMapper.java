@@ -11,6 +11,7 @@ public interface OrderMapper {
     @Mapping(target = "id", source = "id")
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "externalOrderId", source = "externalOrderId")
+    @Mapping(target = "itemId", source = "itemId")
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "source", source = "source")
     @Mapping(target = "status", source = "status")
