@@ -36,6 +36,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = Order.builder()
                 .externalOrderId(request.getExternalOrderId())
+                .itemId(request.getItemId())
                 .userId(request.getUserId())
                 .amount(request.getAmount())
                 .itemType(request.getItemType())

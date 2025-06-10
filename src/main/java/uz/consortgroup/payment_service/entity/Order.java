@@ -40,6 +40,9 @@ public class Order {
     @Column(name = "external_order_id", nullable = false)
     private String externalOrderId;
 
+    @Column(name = "item_id", nullable = false)
+    private UUID itemId;
+
     @Column(name = "amount", nullable = false)
     private Long amount;
 

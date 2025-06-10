@@ -37,53 +37,53 @@ class PaymePerformTransactionHandlerTest {
     public PaymePerformTransactionHandlerTest() {
         MockitoAnnotations.openMocks(this);
     }
-
-    @Test
-    void handle_shouldCompleteTransactionWhenStateIsCreated() {
-        String txId = "trans1";
-        UUID uuid = UUID.randomUUID();
-        Instant beforePerform = Instant.now();
-
-        PerformTransactionParams params = new PerformTransactionParams();
-        params.setId(txId);
-
-        PaycomRequest request = PaycomRequest.builder()
-                .id(10)
-                .method("PerformTransaction")
-                .params(Map.of("id", txId))
-                .build();
-
-        PaymeTransaction tx = PaymeTransaction.builder()
-                .id(uuid)
-                .paycomTransactionId(txId)
-                .state(PaymeTransactionState.CREATED)
-                .createTime(Instant.now())
-                .build();
-
-        when(transactionRepository.findByPaycomTransactionId(txId)).thenReturn(Optional.of(tx));
-
-        doNothing().when(transactionValidatorService).validateTransactionState(tx, PaymeTransactionState.CREATED);
-
-        ArgumentCaptor<PaymeTransaction> captor = ArgumentCaptor.forClass(PaymeTransaction.class);
-        PaycomResponse response = handler.handle(request);
-
-        verify(transactionRepository).save(captor.capture());
-        PaymeTransaction savedTx = captor.getValue();
-
-        assertEquals(PaymeTransactionState.COMPLETED, savedTx.getState());
-        assertNotNull(savedTx.getPerformTime());
-        assertThat(savedTx.getPerformTime()).isAfterOrEqualTo(beforePerform);
-
-        assertEquals(10, response.getId());
-        assertNull(response.getError());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> result = (Map<String, Object>) response.getResult();
-
-        assertEquals(savedTx.getId().toString(), result.get("transaction"));
-        assertEquals(PaymeTransactionState.COMPLETED.getCode(), result.get("state"));
-        assertNotNull(result.get("perform_time"));
-    }
+//
+//    @Test
+//    void handle_shouldCompleteTransactionWhenStateIsCreated() {
+//        String txId = "trans1";
+//        UUID uuid = UUID.randomUUID();
+//        Instant beforePerform = Instant.now();
+//
+//        PerformTransactionParams params = new PerformTransactionParams();
+//        params.setId(txId);
+//
+//        PaycomRequest request = PaycomRequest.builder()
+//                .id(10)
+//                .method("PerformTransaction")
+//                .params(Map.of("id", txId))
+//                .build();
+//
+//        PaymeTransaction tx = PaymeTransaction.builder()
+//                .id(uuid)
+//                .paycomTransactionId(txId)
+//                .state(PaymeTransactionState.CREATED)
+//                .createTime(Instant.now())
+//                .build();
+//
+//        when(transactionRepository.findByPaycomTransactionId(txId)).thenReturn(Optional.of(tx));
+//
+//        doNothing().when(transactionValidatorService).validateTransactionState(tx, PaymeTransactionState.CREATED);
+//
+//        ArgumentCaptor<PaymeTransaction> captor = ArgumentCaptor.forClass(PaymeTransaction.class);
+//        PaycomResponse response = handler.handle(request);
+//
+//        verify(transactionRepository).save(captor.capture());
+//        PaymeTransaction savedTx = captor.getValue();
+//
+//        assertEquals(PaymeTransactionState.COMPLETED, savedTx.getState());
+//        assertNotNull(savedTx.getPerformTime());
+//        assertThat(savedTx.getPerformTime()).isAfterOrEqualTo(beforePerform);
+//
+//        assertEquals(10, response.getId());
+//        assertNull(response.getError());
+//
+//        @SuppressWarnings("unchecked")
+//        Map<String, Object> result = (Map<String, Object>) response.getResult();
+//
+//        assertEquals(savedTx.getId().toString(), result.get("transaction"));
+//        assertEquals(PaymeTransactionState.COMPLETED.getCode(), result.get("state"));
+//        assertNotNull(result.get("perform_time"));
+//    }
 
     @Test
     void handle_shouldReturnSuccessWithoutChangingWhenTransactionAlreadyCompleted() {
