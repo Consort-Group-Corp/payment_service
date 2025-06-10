@@ -15,6 +15,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderItemType;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderStatus;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -31,11 +34,18 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
     @Column(name = "external_order_id", nullable = false)
     private String externalOrderId;
 
     @Column(name = "amount", nullable = false)
     private Long amount;
+
+    @Column(name = "item_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderItemType itemType;
 
     @Column(name = "source", nullable = false)
     @Enumerated(EnumType.STRING)

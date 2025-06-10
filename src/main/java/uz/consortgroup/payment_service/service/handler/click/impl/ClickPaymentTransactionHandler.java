@@ -3,6 +3,8 @@ package uz.consortgroup.payment_service.service.handler.click.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderStatus;
 import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
 import uz.consortgroup.payment_service.dto.click.ClickAction;
 import uz.consortgroup.payment_service.dto.click.ClickError;
@@ -11,11 +13,10 @@ import uz.consortgroup.payment_service.dto.click.ClickResponse;
 import uz.consortgroup.payment_service.entity.ClickTransaction;
 import uz.consortgroup.payment_service.entity.ClickTransactionState;
 import uz.consortgroup.payment_service.entity.Order;
-import uz.consortgroup.payment_service.entity.OrderSource;
-import uz.consortgroup.payment_service.entity.OrderStatus;
 import uz.consortgroup.payment_service.repository.ClickTransactionRepository;
 import uz.consortgroup.payment_service.repository.OrderRepository;
 import uz.consortgroup.payment_service.service.handler.click.ClickMethodHandler;
+import uz.consortgroup.payment_service.service.order.OrderEventPublisherStrategy;
 import uz.consortgroup.payment_service.validator.ClickTransactionValidatorService;
 import uz.consortgroup.payment_service.validator.OrderValidatorService;
 
@@ -28,6 +29,7 @@ public class ClickPaymentTransactionHandler implements ClickMethodHandler {
     private final OrderValidatorService orderValidatorService;
     private final ClickTransactionValidatorService clickTransactionValidatorService;
     private final OrderRepository orderRepository;
+    private final OrderEventPublisherStrategy orderEventPublisherStrategy;
 
     @Override
     public Integer getAction() {
@@ -61,6 +63,8 @@ public class ClickPaymentTransactionHandler implements ClickMethodHandler {
         transaction.setPerformTime(Instant.now());
         transaction.setUpdatedAt(Instant.now());
         clickTransactionRepository.save(transaction);
+
+        orderEventPublisherStrategy.sendEvent(order);
 
         order.setStatus(OrderStatus.PAID);
         order.setUpdatedAt(Instant.now());

@@ -24,6 +24,13 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+kafka:
+  bootstrap-servers: localhost:9092
+  course-purchased: course-purchased-topic
+  producer:
+    enable: true
+
+
 #Дает сам Payme логин и пароль
 paycom:
   login: login

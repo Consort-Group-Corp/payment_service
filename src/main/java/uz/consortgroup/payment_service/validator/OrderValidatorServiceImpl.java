@@ -2,12 +2,12 @@ package uz.consortgroup.payment_service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
 import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
 import uz.consortgroup.payment_service.asspect.annotation.AspectAfterThrowing;
 import uz.consortgroup.payment_service.asspect.annotation.LoggingAspectAfterMethod;
 import uz.consortgroup.payment_service.asspect.annotation.LoggingAspectBeforeMethod;
 import uz.consortgroup.payment_service.entity.Order;
-import uz.consortgroup.payment_service.entity.OrderSource;
 import uz.consortgroup.payment_service.exception.AmountMismatchException;
 import uz.consortgroup.payment_service.exception.OrderInvalidStatusException;
 import uz.consortgroup.payment_service.exception.OrderNotFoundException;
