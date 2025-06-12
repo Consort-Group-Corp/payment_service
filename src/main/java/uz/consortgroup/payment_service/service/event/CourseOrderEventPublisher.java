@@ -27,7 +27,7 @@ public class CourseOrderEventPublisher implements OrderEventPublisher {
     public void publish(Order order) {
         CoursePurchasedEvent event = CoursePurchasedEvent.builder()
                 .messageId(UUID.randomUUID())
-                .courseId(UUID.fromString(order.getExternalOrderId()))
+                .courseId(order.getItemId())
                 .userId(order.getUserId())
                 .purchasedAt(order.getCreatedAt())
                 .accessUntil(order.getUpdatedAt())
