@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
 import uz.consortgroup.payment_service.dto.paycom.CancelTransactionParams;
 import uz.consortgroup.payment_service.dto.paycom.PaycomRequest;
 import uz.consortgroup.payment_service.dto.paycom.PaycomResponse;
@@ -38,19 +37,25 @@ public class PaymeCancelTransactionHandler implements PaycomMethodHandler {
 
     @Override
     @Transactional
-    @AllAspect
     public PaycomResponse handle(PaycomRequest request) {
         Object id = request.getId();
+        log.info("Handling Payme CancelTransaction request: requestId={}", id);
 
         try {
             CancelTransactionParams params = convertParams(request.getParams(), CancelTransactionParams.class);
             String paycomTransactionId = params.getId();
             Integer reason = params.getReason();
 
+            log.info("Parsed CancelTransactionParams: paycomTransactionId={}, reason={}", paycomTransactionId, reason);
+
             PaymeTransaction paymeTransaction = paymeTransactionRepository.findByPaycomTransactionId(paycomTransactionId)
-                    .orElseThrow(OrderNotFoundException::new);
+                    .orElseThrow(() -> {
+                        log.warn("Transaction not found: paycomTransactionId={}", paycomTransactionId);
+                        return new OrderNotFoundException();
+                    });
 
             if (paymeTransaction.getState() == PaymeTransactionState.CANCELED) {
+                log.info("Transaction already canceled: id={}", paymeTransaction.getId());
                 return PaycomResponse.success(id, Map.of(
                         "transaction", paymeTransaction.getId().toString(),
                         "cancel_time", paymeTransaction.getCancelTime().toEpochMilli(),
@@ -59,16 +64,19 @@ public class PaymeCancelTransactionHandler implements PaycomMethodHandler {
             }
 
             if (paymeTransaction.getState() == PaymeTransactionState.COMPLETED) {
+                log.warn("Unable to cancel completed transaction: id={}", paymeTransaction.getId());
                 throw new UnableToCancelException();
             }
 
             paymeTransactionValidatorService.validateTransactionCancelable(paymeTransaction);
+            log.info("Transaction is valid for cancellation: id={}", paymeTransaction.getId());
 
             paymeTransaction.setState(PaymeTransactionState.CANCELED);
             paymeTransaction.setCancelTime(Instant.now());
             paymeTransaction.setReason(reason);
-
             paymeTransactionRepository.save(paymeTransaction);
+
+            log.info("Transaction successfully canceled: id={}", paymeTransaction.getId());
 
             return PaycomResponse.success(id, Map.of(
                     "transaction", paymeTransaction.getId().toString(),
@@ -79,6 +87,7 @@ public class PaymeCancelTransactionHandler implements PaycomMethodHandler {
         } catch (PaycomException e) {
             return PaycomResponse.error(id, e);
         } catch (Exception e) {
+            log.error("Unexpected error occurred during CancelTransaction: requestId={}", id, e);
             return PaycomResponse.error(id, internalError());
         }
     }
