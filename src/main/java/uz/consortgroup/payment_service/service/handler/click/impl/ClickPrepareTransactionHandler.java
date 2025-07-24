@@ -1,10 +1,10 @@
 package uz.consortgroup.payment_service.service.handler.click.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
-import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
 import uz.consortgroup.payment_service.dto.click.ClickAction;
 import uz.consortgroup.payment_service.dto.click.ClickError;
 import uz.consortgroup.payment_service.dto.click.ClickRequest;
@@ -20,6 +20,7 @@ import uz.consortgroup.payment_service.validator.OrderValidatorService;
 import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClickPrepareTransactionHandler implements ClickMethodHandler {
@@ -33,18 +34,28 @@ public class ClickPrepareTransactionHandler implements ClickMethodHandler {
     }
 
     @Override
-    @AllAspect
     @Transactional
     public ClickResponse handle(ClickRequest req) {
+        log.info("Start handling prepare transaction: clickTransactionId={}, merchantTransactionId={}",
+                req.getClickTransactionId(), req.getMerchantTransactionId());
+
         txValidator.validateSignature(req);
+        log.info("Signature successfully validated for clickTransactionId={}", req.getClickTransactionId());
 
         if (clickTransactionRepository.existsByClickTransactionId(req.getClickTransactionId())) {
+            log.info("Transaction already exists: clickTransactionId={}", req.getClickTransactionId());
             ClickTransaction existing = clickTransactionRepository
                     .findByClickTransactionId(req.getClickTransactionId())
-                    .orElseThrow(ClickError.TRANSACTION_NOT_FOUND::createException);
+                    .orElseThrow(() -> {
+                        log.warn("Transaction not found after existence check: clickTransactionId={}", req.getClickTransactionId());
+                        return ClickError.TRANSACTION_NOT_FOUND.createException();
+                    });
+
             if (existing.getState() == ClickTransactionState.COMPLETED) {
+                log.warn("Transaction already completed: clickTransactionId={}", existing.getClickTransactionId());
                 throw ClickError.ALREADY_PAID.createException();
             }
+
             return ClickResponse.success(
                     existing.getClickTransactionId(),
                     existing.getMerchantTransactionId(),
@@ -56,11 +67,12 @@ public class ClickPrepareTransactionHandler implements ClickMethodHandler {
                 req.getMerchantTransactionId(),
                 OrderSource.CLICK
         );
+        log.info("Order found and validated: orderId={}", order.getId());
+
         orderValidator.validateAmount(order, req.getAmount());
         orderValidator.validateOrderStatus(order);
 
         String merchantPrepareId = UUID.randomUUID().toString();
-
         ClickTransaction tx = ClickTransaction.builder()
                 .clickTransactionId(req.getClickTransactionId())
                 .serviceId(req.getServiceId())
@@ -76,6 +88,8 @@ public class ClickPrepareTransactionHandler implements ClickMethodHandler {
                 .build();
 
         clickTransactionRepository.save(tx);
+        log.info("New transaction created and saved: clickTransactionId={}, merchantPrepareId={}",
+                tx.getClickTransactionId(), merchantPrepareId);
 
         return ClickResponse.success(
                 tx.getClickTransactionId(),

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
 import uz.consortgroup.payment_service.dto.paycom.GetStatementDto;
 import uz.consortgroup.payment_service.dto.paycom.PaycomRequest;
 import uz.consortgroup.payment_service.dto.paycom.PaycomResponse;
@@ -16,9 +15,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PaymeGetStatementHandler implements PaycomMethodHandler {
 
     private final PaymeTransactionRepository paymeTransactionRepository;
@@ -30,7 +29,6 @@ public class PaymeGetStatementHandler implements PaycomMethodHandler {
 
     @Override
     @Transactional(readOnly = true)
-    @AllAspect
     public PaycomResponse handle(PaycomRequest request) {
         Object id = request.getId();
 
@@ -41,7 +39,10 @@ public class PaymeGetStatementHandler implements PaycomMethodHandler {
         Instant from = Instant.ofEpochMilli(fromMillis);
         Instant to = Instant.ofEpochMilli(toMillis);
 
+        log.info("Handling GetStatement request: requestId={}, from={}, to={}", id, from, to);
+
         List<PaymeTransaction> paymeTransactions = paymeTransactionRepository.findAllByCreateTimeBetween(from, to);
+        log.info("Found {} transactions between {} and {}", paymeTransactions.size(), from, to);
 
         List<GetStatementDto> result = paymeTransactions.stream()
                 .map(tx -> GetStatementDto.builder()
@@ -56,6 +57,8 @@ public class PaymeGetStatementHandler implements PaycomMethodHandler {
                         .reason(tx.getReason())
                         .build())
                 .toList();
+
+        log.info("Returning GetStatement response with {} entries for requestId={}", result.size(), id);
 
         return PaycomResponse.success(id, result);
     }

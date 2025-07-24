@@ -1,10 +1,10 @@
 package uz.consortgroup.payment_service.service.handler.payme.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
-import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
 import uz.consortgroup.payment_service.dto.paycom.PaycomRequest;
 import uz.consortgroup.payment_service.dto.paycom.PaycomResponse;
 import uz.consortgroup.payment_service.dto.paycom.PerformTransactionParams;
@@ -21,9 +21,11 @@ import java.util.Map;
 
 import static uz.consortgroup.payment_service.service.util.JsonUtil.convertParams;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymePerformTransactionHandler implements PaycomMethodHandler {
+
     private final PaymeTransactionRepository paymeTransactionRepository;
     private final PaymeTransactionValidatorService paymeTransactionValidatorService;
     private final OrderService orderService;
@@ -35,27 +37,36 @@ public class PaymePerformTransactionHandler implements PaycomMethodHandler {
 
     @Override
     @Transactional
-    @AllAspect
     public PaycomResponse handle(PaycomRequest request) {
         Object id = request.getId();
+        log.info("Handling PerformTransaction request: requestId={}", id);
+
         PerformTransactionParams params = convertParams(request.getParams(), PerformTransactionParams.class);
         String paycomTransactionId = params.getId();
 
         PaymeTransaction tx = paymeTransactionRepository.findByPaycomTransactionId(paycomTransactionId)
-                .orElseThrow(TransactionNotFoundException::new);
+                .orElseThrow(() -> {
+                    log.warn("Transaction not found: paycomTransactionId={}", paycomTransactionId);
+                    return new TransactionNotFoundException();
+                });
 
         if (tx.getState() == PaymeTransactionState.COMPLETED) {
+            log.info("Transaction already completed: transactionId={}", tx.getId());
             return PaycomResponse.success(id, buildResponse(tx));
         }
 
         paymeTransactionValidatorService.validateTransactionState(tx, PaymeTransactionState.CREATED);
+        log.info("Transaction is valid for completion: transactionId={}", tx.getId());
 
         orderService.markAsPaidAndPublish(tx.getOrderId(), OrderSource.PAYME);
+        log.info("Order marked as paid and event published: orderId={}", tx.getOrderId());
 
         tx.setState(PaymeTransactionState.COMPLETED);
         tx.setPerformTime(Instant.now());
         paymeTransactionRepository.save(tx);
 
+        log.info("Transaction marked as COMPLETED: transactionId={}, performTime={}",
+                tx.getId(), tx.getPerformTime());
 
         return PaycomResponse.success(id, buildResponse(tx));
     }

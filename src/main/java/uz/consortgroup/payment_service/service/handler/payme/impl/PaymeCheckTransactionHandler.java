@@ -1,9 +1,9 @@
 package uz.consortgroup.payment_service.service.handler.payme.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uz.consortgroup.payment_service.asspect.annotation.AllAspect;
 import uz.consortgroup.payment_service.dto.paycom.CheckTransactionDto;
 import uz.consortgroup.payment_service.dto.paycom.PaycomRequest;
 import uz.consortgroup.payment_service.dto.paycom.PaycomResponse;
@@ -12,6 +12,7 @@ import uz.consortgroup.payment_service.exception.paycom.TransactionNotFoundExcep
 import uz.consortgroup.payment_service.repository.PaymeTransactionRepository;
 import uz.consortgroup.payment_service.service.handler.payme.PaycomMethodHandler;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymeCheckTransactionHandler implements PaycomMethodHandler {
@@ -25,14 +26,17 @@ public class PaymeCheckTransactionHandler implements PaycomMethodHandler {
 
     @Override
     @Transactional(readOnly = true)
-    @AllAspect
     public PaycomResponse handle(PaycomRequest request) {
         Object id = request.getId();
-
         String paycomTransactionId = (String) request.getParams().get("id");
 
+        log.info("Handling CheckTransaction request: requestId={}, paycomTransactionId={}", id, paycomTransactionId);
+
         PaymeTransaction tx = paymeTransactionRepository.findByPaycomTransactionId(paycomTransactionId)
-                .orElseThrow(TransactionNotFoundException::new);
+                .orElseThrow(() -> {
+                    log.warn("Transaction not found: paycomTransactionId={}", paycomTransactionId);
+                    return new TransactionNotFoundException();
+                });
 
         CheckTransactionDto result = CheckTransactionDto.builder()
                 .create_time(tx.getCreateTime().toEpochMilli())
@@ -43,6 +47,7 @@ public class PaymeCheckTransactionHandler implements PaycomMethodHandler {
                 .reason(tx.getReason())
                 .build();
 
+        log.info("Transaction check successful: id={}, state={}", tx.getPaycomTransactionId(), tx.getState());
         return PaycomResponse.success(id, result);
     }
 }
