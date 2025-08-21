@@ -1,5 +1,6 @@
 package uz.consortgroup.payment_service.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import uz.consortgroup.payment_service.service.handler.payme.PaycomService;
 @RestController
 @RequestMapping("/api/v1/paycom")
 @Validated
+@Tag(name = "Paycom", description = "Paycom API")
 public class PaycomController {
     private final PaycomService paycomService;
 

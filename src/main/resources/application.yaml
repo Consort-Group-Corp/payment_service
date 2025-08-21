@@ -39,3 +39,19 @@ paycom:
 #Дает сам Click token
 click:
   secret-key: test-secret-key-20250527
+
+springdoc:
+  api-docs:
+    enabled: true
+
+  swagger-ui:
+    docExpansion: full
+    defaultModelsExpandDepth: 1
+    defaultModelExpandDepth: 3
+    defaultModelRendering: schema
+    operationsSorter: method
+    tagsSorter: alpha
+
+  model-converters:
+    pageable-converter:
+      enabled: true
