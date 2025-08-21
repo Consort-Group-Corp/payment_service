@@ -30,7 +30,6 @@ public class CourseOrderEventPublisher implements OrderEventPublisher {
                 .courseId(order.getItemId())
                 .userId(order.getUserId())
                 .purchasedAt(order.getCreatedAt())
-                .accessUntil(order.getUpdatedAt())
                 .build();
 
         eventBatch.add(event);
