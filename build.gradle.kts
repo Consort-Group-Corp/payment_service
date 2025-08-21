@@ -30,6 +30,9 @@ repositories {
 }
 
 dependencies {
+    // Swagger (SpringDoc) -
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+
     // core-api-dto
     implementation("uz.consortgroup:core-api-dto:0.0.1")
 

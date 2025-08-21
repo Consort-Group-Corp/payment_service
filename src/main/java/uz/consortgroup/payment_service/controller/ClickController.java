@@ -1,5 +1,6 @@
 package uz.consortgroup.payment_service.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import uz.consortgroup.payment_service.service.handler.click.ClickService;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/click")
 @Validated
+@Tag(name = "Click", description = "Click API")
 public class ClickController {
     private final ClickService clickService;
 
