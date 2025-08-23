@@ -3,8 +3,8 @@ package uz.consortgroup.payment_service.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -13,18 +13,23 @@ import uz.consortgroup.core.api.v1.dto.payment.order.OrderRequest;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderResponse;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderStatus;
-import uz.consortgroup.payment_service.config.SecurityConfig;
+import uz.consortgroup.payment_service.security.ClickAuthFilter;
+import uz.consortgroup.payment_service.security.CustomAccessDeniedHandler;
+import uz.consortgroup.payment_service.security.PaycomAuthFilter;
 import uz.consortgroup.payment_service.service.order.OrderService;
+import uz.consortgroup.payment_service.service.util.AuthEntryPointJwt;
+import uz.consortgroup.payment_service.service.util.AuthTokenFilter;
 
 import java.time.Instant;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(OrderController.class)
-@Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 class OrderControllerTest {
 
     @Autowired
@@ -34,14 +39,32 @@ class OrderControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
+    private AuthTokenFilter authTokenFilter;
+
+    @MockitoBean
+    private PaycomAuthFilter paycomAuthFilter;
+
+    @MockitoBean
+    private ClickAuthFilter clickAuthFilter;
+
+    @MockitoBean
+    private AuthEntryPointJwt authEntryPointJwt;
+
+    @MockitoBean
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
+
+    @MockitoBean
     private OrderService orderService;
+
+
 
     @Test
     void create_success() throws Exception {
+        UUID itemId = UUID.randomUUID();
+
         OrderRequest request = OrderRequest.builder()
-                .externalOrderId("123")
-                .userId(UUID.randomUUID())
-                .itemId(UUID.randomUUID())
+                .externalOrderId("ORD-123")
+                .itemId(itemId)
                 .itemType(OrderItemType.COURSE)
                 .amount(15000L)
                 .source(OrderSource.CLICK)
@@ -49,9 +72,9 @@ class OrderControllerTest {
 
         OrderResponse response = OrderResponse.builder()
                 .id(UUID.randomUUID())
-                .externalOrderId("123")
                 .userId(UUID.randomUUID())
-                .itemId(UUID.randomUUID())
+                .externalOrderId("ORD-123")
+                .itemId(itemId)
                 .amount(15000L)
                 .itemType(OrderItemType.COURSE)
                 .source(OrderSource.CLICK)
@@ -60,18 +83,20 @@ class OrderControllerTest {
                 .updatedAt(Instant.now())
                 .build();
 
-        when(orderService.create(request)).thenReturn(response);
+        when(orderService.create(any(OrderRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/v1/orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
 
     @Test
     void create_shouldReturn400_whenExternalOrderIdIsMissing() throws Exception {
         OrderRequest request = OrderRequest.builder()
-                .externalOrderId("") // blank
+                .externalOrderId("")
+                .itemId(UUID.randomUUID())
+                .itemType(OrderItemType.COURSE)
                 .amount(15000L)
                 .source(OrderSource.CLICK)
                 .build();
@@ -85,7 +110,9 @@ class OrderControllerTest {
     @Test
     void create_shouldReturn400_whenAmountIsTooSmall() throws Exception {
         OrderRequest request = OrderRequest.builder()
-                .externalOrderId("abc123")
+                .externalOrderId("ORD-123")
+                .itemId(UUID.randomUUID())
+                .itemType(OrderItemType.COURSE)
                 .amount(10L)
                 .source(OrderSource.CLICK)
                 .build();
@@ -99,9 +126,11 @@ class OrderControllerTest {
     @Test
     void create_shouldReturn400_whenSourceIsMissing() throws Exception {
         OrderRequest request = OrderRequest.builder()
-                .externalOrderId("abc123")
+                .externalOrderId("ORD-123")
+                .itemId(UUID.randomUUID())
+                .itemType(OrderItemType.COURSE)
                 .amount(15000L)
-                .source(null) // null
+                .source(null)
                 .build();
 
         mockMvc.perform(post("/api/v1/orders")

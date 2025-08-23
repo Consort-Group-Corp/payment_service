@@ -40,6 +40,29 @@ paycom:
 click:
   secret-key: test-secret-key-20250527
 
+user:
+  service:
+    url: http://localhost:8081
+
+security:
+  token: wUIBjx3G1C1Ee+eIXtt/zVIFkS40lhoan0HgHriNERBL08Vv2Bwb92is6gZUGEzANhMXulAPHD9li4TmKrdDoA==
+  expiration: 3600000
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
 springdoc:
   api-docs:
     enabled: true

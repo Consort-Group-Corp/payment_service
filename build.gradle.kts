@@ -29,9 +29,24 @@ repositories {
     mavenCentral()
 }
 
+extra["springCloudVersion"] = "2024.0.1"
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+    }
+}
+
 dependencies {
     // Swagger (SpringDoc) -
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+
+    // Feign (REST Clients)
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    implementation("io.github.openfeign.form:feign-form-spring:3.8.0")
+
+    //Eureka
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 
     // core-api-dto
     implementation("uz.consortgroup:core-api-dto:0.0.1")
@@ -44,6 +59,10 @@ dependencies {
     compileOnly("org.mapstruct:mapstruct-processor:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
+
+    // JWT
+    implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     // Spring data
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")

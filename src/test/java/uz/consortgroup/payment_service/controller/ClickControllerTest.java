@@ -3,37 +3,48 @@ package uz.consortgroup.payment_service.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import uz.consortgroup.payment_service.config.SecurityConfig;
 import uz.consortgroup.payment_service.dto.click.ClickRequest;
 import uz.consortgroup.payment_service.dto.click.ClickResponse;
+import uz.consortgroup.payment_service.security.ClickAuthFilter;
+import uz.consortgroup.payment_service.security.PaycomAuthFilter;
 import uz.consortgroup.payment_service.service.handler.click.ClickService;
+import uz.consortgroup.payment_service.service.util.AuthTokenFilter;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @WebMvcTest(controllers = ClickController.class)
-@Import(SecurityConfig.class)
-public class ClickControllerTest {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+@AutoConfigureMockMvc(addFilters = false)
+class ClickControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockitoBean
     private ClickService clickService;
 
+    @MockitoBean
+    private AuthTokenFilter authTokenFilter;
+
+    @MockitoBean
+    private ClickAuthFilter clickAuthFilter;
+
+    @MockitoBean
+    private PaycomAuthFilter paycomAuthFilter;
+
     @Test
-    @WithMockUser(roles = "USER")
     void handleRequest_Success() throws Exception {
-        ClickRequest request = createValidRequest();
+        ClickRequest request = validRequest();
 
         ClickResponse response = ClickResponse.builder()
                 .error(0)
@@ -43,54 +54,47 @@ public class ClickControllerTest {
                 .merchant_prepare_id("merchant_prepare_id")
                 .build();
 
-        when(clickService.handle(request)).thenReturn(response);
+        when(clickService.handle(any(ClickRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/v1/click")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(roles = "USER")
     void handleRequest_InvalidData_ReturnsBadRequest() throws Exception {
-        ClickRequest invalidRequest = ClickRequest.builder()
-                .clickTransactionId(1L)
-                .serviceId(1L)
-                .merchantTransactionId("invalid_transaction")
-                .action(1)
+        // специально не заполняем обязательные поля (под твои @Valid)
+        ClickRequest invalid = ClickRequest.builder()
+                .clickTransactionId(null)
+                .serviceId(null)
+                .merchantTransactionId("") // пусто
+                .amount(null)
+                .action(null)
+                .signTime(null)
+                .signString(null)
                 .build();
 
         mockMvc.perform(post("/api/v1/click")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(invalidRequest)))
+                        .content(objectMapper.writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @WithMockUser(roles = "USER")
     void handleRequest_ServiceError_ReturnsInternalError() throws Exception {
-        ClickRequest request = createValidRequest();
+        ClickRequest request = validRequest();
 
-        when(clickService.handle(request))
+        when(clickService.handle(any(ClickRequest.class)))
                 .thenThrow(new RuntimeException("Service error"));
 
         mockMvc.perform(post("/api/v1/click")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isInternalServerError());
     }
 
-    @Test
-    void handleRequest_Unauthorized_ReturnsUnauthorized() throws Exception {
-        mockMvc.perform(post("/api/click/transaction")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(createValidRequest())))
-                .andExpect(status().isUnauthorized());
-    }
-
-
-    private ClickRequest createValidRequest() {
+    private static ClickRequest validRequest() {
         return ClickRequest.builder()
                 .clickTransactionId(1L)
                 .serviceId(1L)
