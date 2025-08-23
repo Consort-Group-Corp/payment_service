@@ -2,19 +2,24 @@ package uz.consortgroup.payment_service.service.order;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderRequest;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderResponse;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderStatus;
+import uz.consortgroup.core.api.v1.dto.user.response.EligibilityResponse;
+import uz.consortgroup.payment_service.client.UserClient;
 import uz.consortgroup.payment_service.entity.Order;
 import uz.consortgroup.payment_service.exception.OrderAlreadyExistsException;
 import uz.consortgroup.payment_service.exception.OrderNotFoundException;
 import uz.consortgroup.payment_service.mapper.OrderMapper;
 import uz.consortgroup.payment_service.repository.OrderRepository;
+import uz.consortgroup.payment_service.security.AuthContext;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -23,22 +28,41 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final OrderEventPublisherStrategy orderEventPublisherStrategy;
+    private final AuthContext authContext;
+    private final UserClient userClient;
 
     @Transactional
     @Override
     public OrderResponse create(OrderRequest request) {
+        UUID userId = authContext.getCurrentUserId();
+
         log.info("Creating order: externalOrderId={}, userId={}, itemId={}, amount={}, source={}",
-                request.getExternalOrderId(), request.getUserId(), request.getItemId(), request.getAmount(), request.getSource());
+                request.getExternalOrderId(), userId, request.getItemId(), request.getAmount(), request.getSource());
 
         if (orderRepository.findByExternalOrderIdAndSource(request.getExternalOrderId(), request.getSource()).isPresent()) {
             log.warn("Order already exists: externalOrderId={}, source={}", request.getExternalOrderId(), request.getSource());
             throw new OrderAlreadyExistsException("Order with ID " + request.getExternalOrderId() + " already exists");
         }
 
+        try {
+            EligibilityResponse eligibility = userClient.checkEligibility(userId, request.getItemId());
+            if (eligibility == null) {
+                log.error("Eligibility response is null: userId={}, courseId={}", userId, request.getItemId());
+                throw new IllegalStateException("Eligibility check failed");
+            }
+            if (!eligibility.isEligible()) {
+                log.warn("Purchase not allowed: userId={}, courseId={}, reason={}", userId, request.getItemId(), eligibility.getReason());
+                throw new IllegalStateException("Purchase not allowed: " + eligibility.getReason());
+            }
+        } catch (feign.FeignException e) {
+            log.error("Eligibility check failed via Feign: status={}, msg={}", e.status(), e.getMessage(), e);
+            throw e;
+        }
+
         Order order = Order.builder()
                 .externalOrderId(request.getExternalOrderId())
                 .itemId(request.getItemId())
-                .userId(request.getUserId())
+                .userId(userId)
                 .amount(request.getAmount())
                 .itemType(request.getItemType())
                 .source(request.getSource())

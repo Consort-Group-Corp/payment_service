@@ -15,6 +15,7 @@ import uz.consortgroup.payment_service.exception.OrderNotFoundException;
 import uz.consortgroup.payment_service.exception.TransactionAlreadyCanceledException;
 import uz.consortgroup.payment_service.exception.TransactionNotFoundException;
 import uz.consortgroup.payment_service.exception.UnableToCancelException;
+import uz.consortgroup.payment_service.exception.UnauthorizedException;
 
 import java.text.ParseException;
 import java.util.stream.Collectors;
@@ -46,6 +47,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "order_invalid_status", e.getMessage()),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException e) {
+        log.error("UnauthorizedException: {}", e.getMessage(), e);
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "unauthorized", e.getMessage()),
+                HttpStatus.UNAUTHORIZED
         );
     }
 

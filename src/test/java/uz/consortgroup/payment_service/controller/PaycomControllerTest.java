@@ -6,28 +6,29 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import uz.consortgroup.payment_service.config.SecurityConfig;
 import uz.consortgroup.payment_service.dto.paycom.PaycomError;
 import uz.consortgroup.payment_service.dto.paycom.PaycomRequest;
 import uz.consortgroup.payment_service.dto.paycom.PaycomResponse;
+import uz.consortgroup.payment_service.security.ClickAuthFilter;
+import uz.consortgroup.payment_service.security.PaycomAuthFilter;
 import uz.consortgroup.payment_service.service.handler.payme.PaycomService;
+import uz.consortgroup.payment_service.service.util.AuthTokenFilter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PaycomController.class)
-@Import(SecurityConfig.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class PaycomControllerTest {
+class PaycomControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -38,6 +39,15 @@ public class PaycomControllerTest {
     @MockitoBean
     private PaycomService paycomService;
 
+    @MockitoBean
+    private AuthTokenFilter authTokenFilter;
+
+    @MockitoBean
+    private ClickAuthFilter clickAuthFilter;
+
+    @MockitoBean
+    private PaycomAuthFilter paycomAuthFilter;
+
     private String basicAuthHeader;
 
     @BeforeEach
@@ -45,7 +55,8 @@ public class PaycomControllerTest {
         String username = "login";
         String password = "password";
         String creds = username + ":" + password;
-        basicAuthHeader = "Basic " + Base64.getEncoder().encodeToString(creds.getBytes(StandardCharsets.UTF_8));
+        basicAuthHeader = "Basic " + Base64.getEncoder()
+                .encodeToString(creds.getBytes(StandardCharsets.UTF_8));
     }
 
     @Test
@@ -61,7 +72,7 @@ public class PaycomControllerTest {
                 .result("result")
                 .build();
 
-        when(paycomService.handle(request)).thenReturn(response);
+        when(paycomService.handle(any(PaycomRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/v1/paycom")
                         .header("Authorization", basicAuthHeader)
@@ -108,7 +119,7 @@ public class PaycomControllerTest {
                         .build())
                 .build();
 
-        when(paycomService.handle(request)).thenReturn(errorResponse);
+        when(paycomService.handle(any(PaycomRequest.class))).thenReturn(errorResponse);
 
         mockMvc.perform(post("/api/v1/paycom")
                         .header("Authorization", basicAuthHeader)
