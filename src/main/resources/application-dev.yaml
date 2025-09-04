@@ -10,7 +10,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/consort_group
+    url: jdbc:postgresql://db:5432/consort_group
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
@@ -28,24 +28,21 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 kafka:
-  bootstrap-servers: localhost:9092
+  bootstrap-servers: kafka:9092
   course-purchased: course-purchased-topic
   producer:
     enable: true
 
-
-#Дает сам Payme логин и пароль
 paycom:
   login: login
   password: password
 
-#Дает сам Click token
 click:
   secret-key: test-secret-key-20250527
 
 user:
   service:
-    url: http://localhost:8081
+    url: http://consort-user-service:8081
 
 security:
   token: ${SECURITY_TOKEN}
@@ -56,7 +53,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-service:8762/eureka/
   instance:
     prefer-ip-address: true
 
