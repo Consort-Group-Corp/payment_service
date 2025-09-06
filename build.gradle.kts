@@ -74,6 +74,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    //Actuator
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // Apache Kafka
     implementation("org.springframework.kafka:spring-kafka:3.2.0")
