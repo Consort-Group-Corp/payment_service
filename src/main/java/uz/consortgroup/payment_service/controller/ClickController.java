@@ -1,5 +1,6 @@
 package uz.consortgroup.payment_service.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class ClickController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
+    @SecurityRequirements(value = {})
     public ClickResponse handleRequest(@RequestBody @Valid ClickRequest request) {
         return clickService.handle(request);
     }
