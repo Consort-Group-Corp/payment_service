@@ -1,5 +1,6 @@
 package uz.consortgroup.payment_service.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class PaycomController {
     private final PaycomService paycomService;
 
     @PostMapping
+    @SecurityRequirements(value = {})
     public ResponseEntity<PaycomResponse> handleRequest(@RequestBody @Valid PaycomRequest request) {
         PaycomResponse response = paycomService.handle(request);
         return ResponseEntity.ok(response);
