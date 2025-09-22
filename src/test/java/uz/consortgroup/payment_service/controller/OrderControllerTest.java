@@ -13,12 +13,7 @@ import uz.consortgroup.core.api.v1.dto.payment.order.OrderRequest;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderResponse;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderSource;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderStatus;
-import uz.consortgroup.payment_service.security.ClickAuthFilter;
-import uz.consortgroup.payment_service.security.CustomAccessDeniedHandler;
-import uz.consortgroup.payment_service.security.PaycomAuthFilter;
 import uz.consortgroup.payment_service.service.order.OrderService;
-import uz.consortgroup.payment_service.service.util.AuthEntryPointJwt;
-import uz.consortgroup.payment_service.service.util.AuthTokenFilter;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -37,21 +32,6 @@ class OrderControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private AuthTokenFilter authTokenFilter;
-
-    @MockitoBean
-    private PaycomAuthFilter paycomAuthFilter;
-
-    @MockitoBean
-    private ClickAuthFilter clickAuthFilter;
-
-    @MockitoBean
-    private AuthEntryPointJwt authEntryPointJwt;
-
-    @MockitoBean
-    private CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @MockitoBean
     private OrderService orderService;

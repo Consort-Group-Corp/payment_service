@@ -12,10 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uz.consortgroup.payment_service.dto.paycom.PaycomError;
 import uz.consortgroup.payment_service.dto.paycom.PaycomRequest;
 import uz.consortgroup.payment_service.dto.paycom.PaycomResponse;
-import uz.consortgroup.payment_service.security.ClickAuthFilter;
-import uz.consortgroup.payment_service.security.PaycomAuthFilter;
 import uz.consortgroup.payment_service.service.handler.payme.PaycomService;
-import uz.consortgroup.payment_service.service.util.AuthTokenFilter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -27,7 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PaycomController.class)
-@AutoConfigureMockMvc(addFilters = false)
 class PaycomControllerTest {
 
     @Autowired
@@ -38,15 +34,6 @@ class PaycomControllerTest {
 
     @MockitoBean
     private PaycomService paycomService;
-
-    @MockitoBean
-    private AuthTokenFilter authTokenFilter;
-
-    @MockitoBean
-    private ClickAuthFilter clickAuthFilter;
-
-    @MockitoBean
-    private PaycomAuthFilter paycomAuthFilter;
 
     private String basicAuthHeader;
 

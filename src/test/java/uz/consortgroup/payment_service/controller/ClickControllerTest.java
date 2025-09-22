@@ -10,10 +10,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uz.consortgroup.payment_service.dto.click.ClickRequest;
 import uz.consortgroup.payment_service.dto.click.ClickResponse;
-import uz.consortgroup.payment_service.security.ClickAuthFilter;
-import uz.consortgroup.payment_service.security.PaycomAuthFilter;
 import uz.consortgroup.payment_service.service.handler.click.ClickService;
-import uz.consortgroup.payment_service.service.util.AuthTokenFilter;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -21,7 +18,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ClickController.class)
-@AutoConfigureMockMvc(addFilters = false)
 class ClickControllerTest {
 
     @Autowired
@@ -33,14 +29,6 @@ class ClickControllerTest {
     @MockitoBean
     private ClickService clickService;
 
-    @MockitoBean
-    private AuthTokenFilter authTokenFilter;
-
-    @MockitoBean
-    private ClickAuthFilter clickAuthFilter;
-
-    @MockitoBean
-    private PaycomAuthFilter paycomAuthFilter;
 
     @Test
     void handleRequest_Success() throws Exception {

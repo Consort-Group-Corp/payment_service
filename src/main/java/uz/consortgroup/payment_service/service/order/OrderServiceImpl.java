@@ -2,7 +2,6 @@ package uz.consortgroup.payment_service.service.order;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.consortgroup.core.api.v1.dto.payment.order.OrderRequest;
